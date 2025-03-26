@@ -1,0 +1,40 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up AWS CLI
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Install OpenTofu
+      run: |
+        curl -L -o tofu.zip https://github.com/opentofu/terratest/releases/download/v1.3.0/tofu_1.3.0_linux_amd64.zip
+        unzip tofu.zip
+        sudo mv tofu /usr/local/bin/
+        tofu --version
+
+    - name: Initialize OpenTofu
+      run: tofu init
+      working-directory: .
+
+    - name: Apply OpenTofu Configuration
+      run: tofu apply --auto-approve
+      working-directory: .
