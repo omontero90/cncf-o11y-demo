@@ -26,10 +26,10 @@ jobs:
 
     - name: Install OpenTofu v1.9.0
       run: |
-        curl -sSLo opentofu.zip https://github.com/opentofu/opentofu/releases/download/v1.9.0/opentofu_1.9.0_linux_amd64.zip
+        curl -sSLo opentofu.zip https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_linux_amd64.zip
         unzip opentofu.zip
         sudo mv tofu /usr/local/bin/
-              
+
     - name: Verify OpenTofu installation
       run: tofu --version
 
