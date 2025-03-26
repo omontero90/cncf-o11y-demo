@@ -24,24 +24,14 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Download OpenTofu installer script
-      run: curl --proto '=https' --tlsv1.2 -fsSL https://get.opentofu.org/install-opentofu.sh -o install-opentofu.sh
-
-    - name: Give execution permissions to OpenTofu installer script
-      run: chmod +x install-opentofu.sh
-
-    - name: Inspect OpenTofu installer script
-      run: cat install-opentofu.sh
-
-    - name: Run OpenTofu installer
+    - name: Install OpenTofu v1.9.0
       run: |
-        ./install-opentofu.sh --install-method apk || { echo "OpenTofu installation failed"; exit 1; }
-
+        curl -sSLo opentofu.zip https://github.com/opentofu/opentofu/releases/download/v1.9.0/opentofu_1.9.0_linux_amd64.zip
+        unzip opentofu.zip
+        sudo mv tofu /usr/local/bin/
+              
     - name: Verify OpenTofu installation
       run: tofu --version
-
-    - name: Remove OpenTofu installer script
-      run: rm -f install-opentofu.sh
 
     - name: Initialize OpenTofu
       run: tofu init
