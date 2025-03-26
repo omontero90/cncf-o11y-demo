@@ -1,10 +1,10 @@
-# Makefile for managing Terraform and Kubernetes tasks
+# Makefile for managing OpenTofu (Terraform) and Kubernetes tasks
 
 # Variables
 AWS_PROFILE ?= default
 
 # Targets
-.PHONY: all clean aws-config terraform-init terraform-apply kubectl-wait port-forward
+.PHONY: all clean aws-config terraform-init terraform-apply kubectl-wait port-forward terraform-destroy
 
 all: clean aws-config terraform-init terraform-apply kubectl-wait port-forward
 
@@ -40,3 +40,11 @@ kubectl-wait:
 port-forward:
 	@echo "Setting up port forwarding on port 8080..."
 	kubectl port-forward svc/frontend-proxy 8080:8080
+
+terraform-destroy:
+	@echo "Destroying Terraform-managed infrastructure..."
+	tofu destroy --auto-approve
+	@if [ $$? -ne 0 ]; then \
+	    echo "Terraform destroy failed. Exiting."; \
+	    exit 1; \
+	fi
