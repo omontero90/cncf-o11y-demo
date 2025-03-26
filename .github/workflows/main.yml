@@ -24,12 +24,20 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Install OpenTofu
-      run: |
-        curl -L -o tofu.zip https://github.com/opentofu/terratest/releases/download/v1.3.0/tofu_1.3.0_linux_amd64.zip
-        unzip tofu.zip
-        sudo mv tofu /usr/local/bin/
-        tofu --version
+    - name: Download OpenTofu installer script
+      run: curl --proto '=https' --tlsv1.2 -fsSL https://get.opentofu.org/install-opentofu.sh -o install-opentofu.sh
+
+    - name: Give execution permissions to OpenTofu installer script
+      run: chmod +x install-opentofu.sh
+
+    - name: Inspect OpenTofu installer script
+      run: cat install-opentofu.sh
+
+    - name: Run OpenTofu installer
+      run: ./install-opentofu.sh --install-method rpm
+
+    - name: Remove OpenTofu installer script
+      run: rm -f install-opentofu.sh
 
     - name: Initialize OpenTofu
       run: tofu init
@@ -38,3 +46,9 @@ jobs:
     - name: Apply OpenTofu Configuration
       run: tofu apply --auto-approve
       working-directory: .
+
+    - name: Wait for Kubernetes service to be ready
+      run: kubectl wait --for=condition=available --timeout=60s svc/frontend-proxy
+
+    - name: Set up port forwarding
+      run: kubectl port-forward svc/frontend-proxy 8080:8080
