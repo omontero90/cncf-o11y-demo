@@ -35,7 +35,10 @@ jobs:
 
     - name: Run OpenTofu installer
       run: |
-        ./install-opentofu.sh --install-method apk || { echo "OpenTofu installation failed"; cat /var/log/opentofu-install.log; exit 1; }
+        ./install-opentofu.sh --install-method apk || { echo "OpenTofu installation failed"; exit 1; }
+
+    - name: Verify OpenTofu installation
+      run: tofu --version
 
     - name: Remove OpenTofu installer script
       run: rm -f install-opentofu.sh
@@ -47,9 +50,3 @@ jobs:
     - name: Apply OpenTofu Configuration
       run: tofu apply --auto-approve
       working-directory: .
-
-    - name: Wait for Kubernetes service to be ready
-      run: kubectl wait --for=condition=available --timeout=60s svc/frontend-proxy
-
-    - name: Set up port forwarding
-      run: kubectl port-forward svc/frontend-proxy 8080:8080
