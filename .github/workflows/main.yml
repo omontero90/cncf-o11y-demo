@@ -34,7 +34,8 @@ jobs:
       run: cat install-opentofu.sh
 
     - name: Run OpenTofu installer
-      run: ./install-opentofu.sh --install-method rpm
+      run: |
+        ./install-opentofu.sh --install-method apk || { echo "OpenTofu installation failed"; cat /var/log/opentofu-install.log; exit 1; }
 
     - name: Remove OpenTofu installer script
       run: rm -f install-opentofu.sh
